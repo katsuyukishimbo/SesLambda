@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Create S3 bucket for registration form.
+Parameters:
+  Env:
+    Type: 'String'
+    AllowedValues:
+      - prd
+      - stg
+
+Resources:
+  EmailBounceBucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      LifecycleConfiguration:
+        Rules:
+          - ExpirationInDays: 30
+            Status: Enabled
+            Id: 30daysRules

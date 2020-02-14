@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  email-bounce for email-bounce
+Parameters:
+  BounceRegion:
+    Type: 'String'
+    Default: "us-east-1"
+
+Globals:
+  Function:
+    Timeout: 5
+
+Resources:
+  EmailBounceFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: application/
+      Handler: application
+      Runtime: go1.x
+      Tracing: Active
+      Events:
+        CatchAll:
+          Type: SNS
+          Properties:
+            Topic: !Ref EmailBounceTopic
+            Region: !Ref BounceRegion
+      Environment:
+        Variables:
+          TOKEN: value
+
+  EmailBounceTopic:
+    Type: AWS::SNS::Topic
+
+  EmailBounceSubscription:
+    Type: AWS::SNS::Subscription
+    Properties: 
+      Endpoint: !GetAtt EmailBounceFunction.Arn
+      Protocol: lambda
+      Region: !Ref BounceRegion
+      TopicArn: !Ref EmailBounceTopic
+
+
+Outputs:
+  EmailBounceFunction:
+    Description: "Lambda Function ARN"
+    Value: !GetAtt EmailBounceFunction.Arn
+  EmailBounceFunctionIamRole:
+    Description: "Implicit IAM Role created"
+    Value: !GetAtt EmailBounceFunction.Arn
